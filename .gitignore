@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+coverage/
+.turbo/
+packages/db/src/generated/
+apps/api/temp-jobs/
+state.md
+details.txt
+project-detail.md
+
