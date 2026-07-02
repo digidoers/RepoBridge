@@ -112,23 +112,50 @@ syncJobsRouter.post("/manual-sync", async (req: Request, res: Response, next: Ne
       mainRepo.fullName,
       rangeCommits[rangeCommits.length - 1].sha
     );
-    const comparison = await GithubAppService.compareCommits(
-      mainRepo.installationId,
-      mainRepo.fullName,
-      oldestCommit.parentSha,
-      newestCommit.sha
-    );
-
-    const commitFiles = comparison.files;
-    const validFilePaths = new Set(commitFiles.map((file) => file.filename));
     const selectedFiles = Array.from(new Set(filePaths));
+    const filesByPath = new Map<string, {
+      filename: string;
+      status: string;
+      patch?: string;
+      additions: number;
+      deletions: number;
+    }>();
+
+    for (const summary of rangeCommits) {
+      const commit = await GithubAppService.getCommit(
+        mainRepo.installationId,
+        mainRepo.fullName,
+        summary.sha
+      );
+
+      for (const file of commit.files) {
+        const existing = filesByPath.get(file.filename);
+        filesByPath.set(file.filename, {
+          filename: file.filename,
+          status: existing?.status || file.status,
+          patch: existing?.patch || file.patch,
+          additions: (existing?.additions || 0) + file.additions,
+          deletions: (existing?.deletions || 0) + file.deletions,
+        });
+      }
+    }
+
+    const validFilePaths = new Set(filesByPath.keys());
     const invalidFiles = selectedFiles.filter((filePath) => !validFilePaths.has(filePath));
 
     if (invalidFiles.length > 0) {
-      return next(AppError.badRequest(`Selected files are not part of this commit: ${invalidFiles.join(", ")}`));
+      return next(AppError.badRequest(`Selected files are not part of the selected commit range: ${invalidFiles.join(", ")}`));
     }
 
-    const selectedCommitFiles = commitFiles.filter((file) => selectedFiles.includes(file.filename));
+    const selectedCommitFiles = selectedFiles
+      .map((filePath) => filesByPath.get(filePath))
+      .filter((file): file is {
+        filename: string;
+        status: string;
+        patch?: string;
+        additions: number;
+        deletions: number;
+      } => Boolean(file));
     const pushEvent = await prisma.$transaction(async (tx) => {
       const message = rangeCommits.length === 1
         ? newestCommit.message

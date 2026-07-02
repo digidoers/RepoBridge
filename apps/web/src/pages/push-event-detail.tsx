@@ -963,11 +963,11 @@ export function PushEventDetailPage() {
       )}
 
       {activeTab === "sync" && (
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0">
           {/* Top section: Configuration options */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-w-0">
             {/* Column 1: Repo Selector */}
-            <div className="bg-card border border-border rounded-xl p-3 space-y-3">
+            <div className="bg-card border border-border rounded-xl p-3 space-y-3 min-w-0">
               <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
                 <Server className="w-4 h-4 text-accent" />
                 Target Client Repositories
@@ -1015,7 +1015,7 @@ export function PushEventDetailPage() {
             </div>
 
             {/* Column 2 & 3: File Sync targeting matrix */}
-            <div className="lg:col-span-2 bg-card border border-border rounded-xl p-3 space-y-3 flex flex-col justify-between">
+            <div className="lg:col-span-2 bg-card border border-border rounded-xl p-3 space-y-3 flex flex-col justify-between min-w-0">
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
                   <Settings className="w-4 h-4 text-accent" />
@@ -1109,7 +1109,7 @@ export function PushEventDetailPage() {
           </div>
 
           {/* Sync Jobs Results Stream */}
-          <div className="space-y-3">
+          <div className="space-y-3 min-w-0">
             <div className="flex items-center justify-between border-b border-border pb-2 gap-4">
               <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
                 <GitMerge className="w-4.5 h-4.5 text-accent" />
@@ -1145,11 +1145,11 @@ export function PushEventDetailPage() {
             </div>
 
             {syncJobs.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-3 min-w-0">
                 {syncJobs.map((job) => (
                   <div
                     key={job.id}
-                    className="bg-card border border-border rounded-xl p-3 space-y-3"
+                    className="bg-card border border-border rounded-xl p-3 space-y-3 min-w-0 overflow-hidden"
                   >
                     {/* Job Header Info */}
                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-3">
@@ -1201,7 +1201,7 @@ export function PushEventDetailPage() {
                     </div>
 
                     {/* Job Files summary */}
-                    <div className="space-y-4">
+                    <div className="space-y-4 min-w-0">
                       {job.errorMessage && job.errorMessage !== "Already up to date" && (() => {
                         const isApplyStage = Boolean(job.branchName || job.prNumber);
                         const isWarning = job.status === "APPLIED";
@@ -1238,8 +1238,9 @@ export function PushEventDetailPage() {
                           <strong className="text-warning">CONFLICT</strong> both versions changed the same lines, so you need to choose the final content.
                         </span>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                        {job.files?.map((file) => {
+                      <div className="max-w-full overflow-x-auto overscroll-x-contain pb-2 rounded-lg border border-border/60 bg-page/20">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 min-w-full md:min-w-[720px] lg:min-w-[980px] p-2">
+                          {job.files?.map((file) => {
                           const isConflict = file.mergeResult === "CONFLICT";
                           return (
                             <div
@@ -1281,7 +1282,8 @@ export function PushEventDetailPage() {
                               )}
                             </div>
                           );
-                        })}
+                          })}
+                        </div>
                       </div>
 
                         {/* Conflict Diff Box */}
